@@ -37,8 +37,20 @@ Before tackling the main problem, the BNN architecture is first validated on the
 
 ### Experiment 2: Space Debris Classification
 This is the core application. The BNN is trained to classify patches of orbit as "Safe" or containing "Debris". The training data is generated from real-world, up-to-date orbital data.
+
 * **Data Source**: **Two-Line Element (TLE)** orbital parameters for all tracked satellites and debris, downloaded automatically from **Celestrak**.
 * **Image Generation**: The `skyfield` library is used to propagate the TLE orbits and generate 2D "sensor maps" that simulate a satellite's field of view.
+
+#### From TLE Text to "QR Code" Images
+The "images" in the debris dataset are not photographs. They are low-resolution data maps generated through a simulation process that turns text-based orbital data into a visual format for the BNN. Here is how it works:
+
+1.  **Time Snapshot**: The code picks a random moment in time.
+2.  **Position Calculation**: Using the TLE data, the `skyfield` library calculates the precise 3D position of every tracked object in orbit at that instant.
+3.  **Simulate a Sensor**: A random point in orbit is chosen as the center of a virtual sensor. The code then checks for any other objects within a large radius (e.g., 3000 km) of this point.
+4.  **Create the Map**: A low-resolution 28x28 pixel grid is created. For each object found inside the virtual sensor's range, a single, random pixel on the grid is "lit up".
+5.  **Binarize the Output**: The final map is converted into a `{-1, +1}` format, where `+1` (a bright pixel) represents a detected object and `-1` (a dark pixel) represents empty space.
+
+The resulting "QR code-like" appearance is due to the magnification of this very low-resolution 28x28 grid. Each large square in the visualization is a single pixel, similar to zooming in on an 8-bit video game character. This creates a simple, high-contrast image that is ideal for the BNN to learn from.
 
 ## Current Status
 
