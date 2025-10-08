@@ -1,62 +1,62 @@
 # Digital IMC BNN Accelerator for Real-Time Space Debris Classification
 
-> This repository contains the complete software implementation and hardware design for a Digital In-Memory Computing (IMC) accelerator. The system is built around a Binarized Neural Network (BNN) designed for ultra-low-power, real-time classification of space debris on edge devices like nanosatellites.
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue) ![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-orange) ![License](https://img.shields.io/badge/License-MIT-green)
 
-## The Problem: Orbital Congestion
+> This repository contains the full software implementation for a Binarized Neural Network (BNN) designed for real-time space debris classification. The project serves as the "golden reference" model for a future hardware accelerator, enabling ultra-low-power AI for edge devices like nanosatellites.
 
-The growing population of space debris poses a significant threat to active satellites. For small, power-constrained satellites (nanosatellites), autonomous, on-board collision avoidance is critical due to the communication latency with ground stations. Traditional AI models are too power-hungry for these edge applications.
+## The Problem: A Crowded Sky
 
-This project solves this by designing a specialized hardware/software system that can make **zero-latency classification decisions** ("Debris" vs. "Safe") within an extreme power budget.
+The increasing amount of space debris poses a critical threat to operational satellites. For small, power-constrained nanosatellites, relying on ground control for collision avoidance is often too slow due to communication latency. Therefore, a need exists for autonomous, on-board AI that can make instantaneous decisions within an extremely tight power budget.
 
-## The Solution: A Hybrid BNN System
+## The Solution: A Hardware-Aware BNN
 
-Our solution is a **3-Layer Binarized Neural Network (BNN)**. BNNs replace computationally expensive multiplication operations with highly efficient bitwise **XNOR** and **Popcount** logic, making them ideal for hardware implementation.
-
-The system uses a hardware/software co-design approach to maximize performance and efficiency:
-
-!(Final_IMCfornow.drawio.png)
+This project tackles the problem by developing a **3-Layer Binarized Neural Network (BNN)**. BNNs are a class of neural networks that constrain both weights and activations to only two values (`+1` or `-1`). This simplification replaces power-hungry multiplication operations with highly efficient bitwise **XNOR** and **Popcount** logic, making them perfectly suited for custom hardware accelerators.
 
 ### System Architecture
 
-| Component | Layer | Role & Logic | Implemented In |
+The end-goal is a hardware/software co-design where the most computationally demanding layer is offloaded to a custom chip.
+
+![System Architecture Diagram](Final_IMCfornow.drawio.png)
+
+| Component | Layer | Role & Logic | Target Platform |
 | :--- | :--- | :--- | :--- |
-| **Custom Hardware** | Binary Conv1 | **Primary Feature Extraction**. The most computationally intensive layer. Uses a 3x3 parallel XNOR array and Popcount for MAC+A (Multiply-Accumulate-Activate). | **Verilog/RTL** |
-| **Host Software** | Binary Conv2 | **Feature Aggregation**. Takes the feature maps from the hardware and finds higher-level patterns. | **Python (PyTorch)** |
-| **Host Software** | Binary FC | **Final Classification**. A dense layer that makes the final decision based on aggregated features. | **Python (PyTorch)** |
+| **Custom Hardware** | Binary Conv1 | **Primary Feature Extraction**. The most computationally intensive layer, designed with a parallel XNOR array. | **Verilog/RTL** |
+| **Host Software** | Binary Conv2 | **Feature Aggregation**. Finds higher-level patterns from the hardware-extracted features. | **Python (PyTorch)** |
+| **Host Software** | Binary FC | **Final Classification**. A dense layer that makes the final "Debris" or "Safe" decision. | **Python (PyTorch)** |
 
-This hybrid approach dedicates a custom, power-efficient chip to the heavy lifting (Layer 1), while a general-purpose host processor handles the less demanding subsequent layers.
+This repository contains the complete PyTorch implementation of this entire system, which serves as a functional model and a "golden reference" for verifying the future hardware design.
 
-## Project Workflow
+## Project Structure & Experiments
 
-The project is developed using a two-track parallel workflow:
+The project is structured as a single, comprehensive Jupyter/Colab notebook that runs two key experiments in sequence.
 
-#### Track 1: Software (The "Golden Reference")
-This track focuses on creating a perfect software simulation of the BNN in PyTorch. Its purpose is to:
-1.  **Prove the Architecture**: Verify that the BNN model can learn and achieve high accuracy on the target task.
-2.  **Train the Model**: Generate the final, trained binary weights (`W_final`) that will be loaded onto the hardware.
-3.  **Generate Test Vectors**: Produce input/output data pairs from the trained Layer 1 to verify the correctness of the hardware design.
+### Experiment 1: MNIST Benchmark
+Before tackling the main problem, the BNN architecture is first validated on the standard **MNIST handwritten digit dataset**. This serves two purposes:
+1.  **Baseline Performance**: Establishes a performance benchmark for the model architecture.
+2.  **Functional Verification**: Proves that the custom binarization layers and training loop are implemented correctly.
 
-#### Track 2: Hardware (RTL Implementation)
-This track focuses on the physical design of the `Conv1` accelerator.
-1.  **RTL Coding**: Implement the core logic (XNOR array, Popcount, control unit) in Verilog or SystemVerilog.
-2.  **Verification**: Create a test bench to simulate the RTL, feeding it the test vectors generated by the software track.
-3.  **Synthesis**: Convert the verified RTL into a physical layout (GDSII) for fabrication.
+### Experiment 2: Space Debris Classification
+This is the core application. The BNN is trained to classify patches of orbit as "Safe" or containing "Debris". The training data is generated from real-world, up-to-date orbital data.
+* **Data Source**: **Two-Line Element (TLE)** orbital parameters for all tracked satellites and debris, downloaded automatically from **Celestrak**.
+* **Image Generation**: The `skyfield` library is used to propagate the TLE orbits and generate 2D "sensor maps" that simulate a satellite's field of view.
 
 ## Current Status
 
-The project is currently in the **Software track**, focusing on training and optimizing the "Golden Reference" model.
+* **BNN Core Components Implemented**: All custom PyTorch modules (`Binarize`, `BinarizedConv2d`, `BinarizedLinear`) are complete and functional.
+* **MNIST Benchmark Complete**: The model has been successfully trained and evaluated on MNIST, demonstrating the viability of the architecture.
+* **Real-Data Generator Implemented**: The code to automatically download TLE data and generate realistic training images is complete.
+* **Current Focus**: Training and optimizing the BNN model on the TLE-generated space debris dataset to achieve high accuracy for the final application.
 
-* **BNN Model Implemented**: The full 3-layer architecture, including custom `Binarize`, `BinarizedConv2d`, and `BinarizedLinear` layers, is complete in PyTorch.
-* **Proof-of-Concept Training**: The model was successfully validated on a synthetic dataset, achieving near-perfect accuracy and proving the architecture's viability.
-* **Training on Real-World Data**: The current focus is on training the model using a more realistic dataset. This dataset is generated on-the-fly using real-time **Two-Line Element (TLE)** orbital data for all tracked space objects, downloaded from Celestrak and processed using the `skyfield` library.
+## Getting Started: How to Run This Project
 
-The next major phase will be the **Hardware (RTL) track**, which will begin once the software model's weights are finalized.
-
-## How to Run the Software Model
-
-This repository contains the complete code to train the "Golden Reference" BNN model.
+This project is designed to be run as a single notebook in an environment like Google Colab.
 
 ### 1. Prerequisites
-Ensure you have Python 3.8+ and the following libraries installed:
+* A Google Colab account or a local environment with Python 3.8+ and Jupyter Notebook.
+* Basic understanding of Python and PyTorch.
+
+### 2. Setup
+Clone the repository and open the `.ipynb` notebook file. The first code cell will handle the installation of necessary Python packages:
 ```bash
-pip install torch numpy skyfield tqdm
+# This command is included in the notebook
+!pip install skyfield
