@@ -13,7 +13,7 @@ This repository documents a complete design flow with two primary objectives:
 1.  **Software Golden Model**: To develop and train a BNN in PyTorch that can accurately classify space debris from simulated sensor data. This model serves as the "golden reference" for functional correctness.
 2.  **Hardware RTL Implementation**: To design a modular, efficient, and verifiable hardware accelerator in Verilog that implements the most computationally intensive layers of the BNN, preparing it for a future ASIC tapeout.
 
-## 🛰️ The Problem: A Crowded Sky
+## The Problem: A Crowded Sky
 
 The increasing amount of space debris poses a critical threat to operational satellites. For small, power-constrained nanosatellites, relying on ground control for collision avoidance is often too slow due to communication latency. Therefore, a need exists for autonomous, on-board AI that can make instantaneous decisions within an extremely tight power budget.
 
@@ -87,8 +87,8 @@ This is the core application. The BNN is trained to classify simulated sensor ma
 -   [x] **Software Model**: BNN core components in PyTorch are complete.
 -   [x] **Benchmarking**: Model successfully benchmarked on MNIST.
 -   [x] **Data Generation**: TLE data pipeline and image generator are fully functional.
--   [x] **Hardware RTL Design**: All datapath and communication modules (`pe_xnor` to `spi_slave`) are designed in Verilog.
--   [x] **Hardware RTL Verification**: All designed modules have been successfully verified with dedicated testbenches.
+-   [x] **Hardware RTL Design**: All datapath and communication modules (`pe_xnor` to `datapath` and `spi_slave` (working on)) are designed in Verilog.
+-   [ ] **Hardware RTL Verification**: All designed modules have been successfully verified with dedicated testbenches.
 -   [ ] **Hardware Integration**: Design of the final top-level FSM to integrate all hardware modules.
 -   [ ] **ASIC Backend Flow**: Logic Synthesis, Place & Route, and Sign-off.
 
