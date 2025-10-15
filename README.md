@@ -52,7 +52,7 @@ The accelerator is composed of a computational datapath and a control interface.
 | `popcount_accumulator.v` | **Popcount Accumulator**. Counts the number of '1's from the IMC array output using an efficient adder tree. | Complete & Verified |
 | `digital_activation.v` | **Activation Function**. Compares the popcount sum to a programmable threshold to produce a 1-bit output. | Complete & Verified |
 | `bnn_datapath.v` | **Integrated Datapath**. Connects the four modules above into a complete computational pipeline. | Complete & Verified |
-| `spi_slave.v` | **SPI Interface**. The communication port to receive weights, thresholds, and pixel data from a host controller. | Complete & Verified |
+| `spi_slave.v` | **SPI Interface**. The communication port to receive weights, thresholds, and pixel data from a host controller. | *In Progress |
 | `accelerator_top.v` | **Top Module**. The final module that will integrate the datapath, SPI slave, memory, and control logic (FSM). | *In Progress* |
 
 ### Verification Strategy
